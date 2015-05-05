@@ -23,9 +23,10 @@ module MediawikiApi
     # @param response [Faraday::Response]
     # @param envelope [Array] Property names for expected payload nesting.
     #
-    def initialize(response, envelope = [])
+    def initialize(response, envelope = [], format = 'json')
       @response = response
       @envelope = envelope
+      @format = format
     end
 
     # Accessor for root response object values.
@@ -94,7 +95,7 @@ module MediawikiApi
     end
 
     def response_object
-      @response_object ||= JSON.parse(@response.body)
+      @response_object ||= @format == 'json' ? JSON.parse(@response.body) : @response.body
     end
   end
 end

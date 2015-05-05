@@ -158,7 +158,7 @@ module MediawikiApi
       @tokens[type]
     end
 
-    def send_request(method, params, envelope)
+    def send_request(method, params, envelope, format)
       response = @conn.send(method, '', params)
 
       raise HttpError, response.status if response.status >= 400
@@ -167,7 +167,7 @@ module MediawikiApi
         raise ApiError, Response.new(response, ['error'])
       end
 
-      Response.new(response, envelope)
+      Response.new(response, envelope, format)
     end
 
     def subquery(type, subtype, params = {})
@@ -179,13 +179,14 @@ module MediawikiApi
       params = params.clone
 
       method = params.delete(:http_method) || :post
+      format = params.delete(:format) || FORMAT
       token_type = params.delete(:token_type)
       envelope = (params.delete(:envelope) || [name]).map(&:to_s)
 
       params[:token] = get_token(token_type || name) unless token_type == false
       params = compile_parameters(params)
 
-      send_request(method, params.merge(action: name, format: FORMAT), envelope)
+      send_request(method, params.merge(action: name, format: format), envelope, format)
     end
   end
 end
